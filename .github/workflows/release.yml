@@ -1,0 +1,66 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+            args: ""
+          - platform: macos-latest
+            args: "--target universal-apple-darwin"
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - name: install frontend dependencies
+        run: npm ci
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "CaTokens ${{ github.ref_name }}"
+          releaseBody: |
+            ## CaTokens 위젯
+
+            Claude Code 토큰 사용량 데스크탑 위젯.
+
+            ### 다운로드
+            - **Windows**: `.msi` 또는 `.exe` (NSIS)
+            - **macOS**: `.dmg` (Intel + Apple Silicon 통합)
+
+            ### 설치 시 주의
+            서명 안 된 빌드라 처음 실행 시:
+            - Windows: SmartScreen 경고 → "추가 정보 → 실행" 클릭
+            - macOS: "확인되지 않은 개발자" → 우클릭 → 열기
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}

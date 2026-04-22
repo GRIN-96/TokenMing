@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" width="512" height="512">
+  <!--
+    Tray icon — 작은 사이즈 전용, 고대비 실루엣
+    22x22 viewBox는 CLAUDE.md 프로토타입과 동일
+  -->
+  <defs>
+    <clipPath id="trayClip">
+      <path d="M11,1.5 C11,1.5 18,3.5 20,11 C22,18.5 18,20.5 11,21 C4,20.5 0,18.5 2,11 C4,3.5 11,1.5 11,1.5 Z"/>
+    </clipPath>
+    <linearGradient id="trayGrad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#4c1d95"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M11,1.5 C11,1.5 18,3.5 20,11 C22,18.5 18,20.5 11,21 C4,20.5 0,18.5 2,11 C4,3.5 11,1.5 11,1.5 Z" fill="#12121a"/>
+  <g clip-path="url(#trayClip)">
+    <!-- full fill -->
+    <rect x="-2" y="-2" width="26" height="26" fill="url(#trayGrad)"/>
+    <!-- simple eye dots for recognizability at tiny sizes -->
+    <circle cx="8" cy="9" r="1.2" fill="#e8e8f0"/>
+    <circle cx="14" cy="9" r="1.2" fill="#e8e8f0"/>
+  </g>
+  <path d="M11,1.5 C11,1.5 18,3.5 20,11 C22,18.5 18,20.5 11,21 C4,20.5 0,18.5 2,11 C4,3.5 11,1.5 11,1.5 Z"
+        fill="none" stroke="rgba(139,92,246,0.6)" stroke-width="0.8"/>
+</svg>

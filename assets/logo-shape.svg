@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!--
+    Claude Logo Shape
+    ─────────────────
+    viewBox : 0 0 64 64
+    Shape   : rounded hexagonal blob approximating the Claude logo
+    Path    : M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z
+
+    Tray-size variant (22×22):
+      M11,1.5 C11,1.5 18,3.5 20,11 C22,18.5 18,20.5 11,21 C4,20.5 0,18.5 2,11 C4,3.5 11,1.5 11,1.5 Z
+  -->
+  <path
+    id="claudeLogoShape"
+    d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z"
+    fill="#8b5cf6"
+  />
+</svg>

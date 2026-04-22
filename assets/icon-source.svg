@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="1024" height="1024">
+  <!--
+    CaTokens app icon — 정적 스냅샷 (state-active 기반)
+    애니메이션 요소 (pulse ring, wave flow) 제외
+    채움 상태: 100% (설치된 앱 아이콘이므로 고정)
+  -->
+  <defs>
+    <clipPath id="clip">
+      <path d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z"/>
+    </clipPath>
+    <linearGradient id="gradActive" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#4c1d95"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>
+
+  <!-- base -->
+  <path d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z" fill="#1a1a28"/>
+
+  <!-- clipped contents -->
+  <g clip-path="url(#clip)">
+    <!-- fully filled body -->
+    <rect x="-4" y="-4" width="72" height="72" fill="url(#gradActive)"/>
+    <!-- subtle highlight wave near top for character -->
+    <path d="M-10,16 Q8,12 22,16 Q36,20 50,16 Q64,12 78,16 L78,22 L-10,22 Z"
+          fill="rgba(255,255,255,0.08)"/>
+
+    <!-- eyes -->
+    <ellipse cx="24" cy="25" rx="2.5" ry="3" fill="#e8e8f0"/>
+    <ellipse cx="40" cy="25" rx="2.5" ry="3" fill="#e8e8f0"/>
+    <ellipse cx="24.6" cy="25.6" rx="1.2" ry="1.5" fill="#1a0a3e"/>
+    <ellipse cx="40.6" cy="25.6" rx="1.2" ry="1.5" fill="#1a0a3e"/>
+    <circle cx="25.2" cy="24.8" r="0.5" fill="white" opacity="0.8"/>
+    <circle cx="41.2" cy="24.8" r="0.5" fill="white" opacity="0.8"/>
+  </g>
+
+  <!-- outline -->
+  <path d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z"
+        fill="none" stroke="rgba(139,92,246,0.8)" stroke-width="1"/>
+</svg>

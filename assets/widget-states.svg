@@ -1,0 +1,198 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!--
+  ╔══════════════════════════════════════════════════════════╗
+  ║  CaTokens — 상태별 SVG 스냅샷                           ║
+  ║  각 <g> 블록이 하나의 상태를 나타냄                      ║
+  ╚══════════════════════════════════════════════════════════╝
+
+  공통 구조:
+    1. <clipPath>  — 로고 실루엣으로 자르기
+    2. 배경 rect   — 어두운 베이스
+    3. 채움 그룹   — translateY 로 높이 조절 (100%=비어있음, 0%=꽉참)
+    4. 눈          — 상태마다 다른 표정
+    5. 아웃라인    — 상태 색상 stroke
+
+  로고 shape path:
+    M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z
+  -->
+
+  <defs>
+    <!-- 공용 clipPath -->
+    <clipPath id="clip">
+      <path d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- ─── STATE 1: IDLE (0~9%) ──────────────────────────── -->
+  <!--
+    fill     : #1e1e28 → #2a2a40 (거의 안 보임)
+    opacity  : 0.4 전체
+    눈       : 희미한 타원 (opacity 0.3)
+    glow     : none
+    animation: 없음
+  -->
+  <g id="state-idle" opacity="0.4">
+    <path d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z" fill="#1a1a24"/>
+    <g clip-path="url(#clip)">
+      <ellipse cx="24" cy="28" rx="2" ry="2.5" fill="#3a3a50" opacity="0.5"/>
+      <ellipse cx="40" cy="28" rx="2" ry="2.5" fill="#3a3a50" opacity="0.5"/>
+    </g>
+    <path d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z"
+          fill="none" stroke="#2a2a35" stroke-width="1.5"/>
+  </g>
+
+  <!-- ─── STATE 2: ACTIVE (10~79%) ──────────────────────── -->
+  <!--
+    fill     : #4c1d95 → #a78bfa (보라 그라디언트, 아래→위)
+    채움높이 : translateY(30%) = 약 70% 채워진 상태 예시
+    눈       : 흰 눈 + 어두운 동공 + 흰 반짝임
+    pulse ring: circle r=28→42 fade out
+    glow     : drop-shadow(0 0 10px rgba(139,92,246,0.5))
+    animation: bounce (위아래), waveFlow (물결 2레이어), pulseRing
+  -->
+  <g id="state-active">
+    <defs>
+      <linearGradient id="gradActive" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%" stop-color="#4c1d95"/>
+        <stop offset="100%" stop-color="#a78bfa"/>
+      </linearGradient>
+    </defs>
+    <path d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z" fill="#1a1a28"/>
+    <g clip-path="url(#clip)">
+      <!-- fill: translateY(30%) → 70% 채워진 예시 -->
+      <g transform="translate(0, 19.2)"><!-- 64 * 0.3 = 19.2 -->
+        <rect x="-4" y="-4" width="72" height="72" fill="url(#gradActive)"/>
+        <!-- wave layer 1 -->
+        <path d="M-10,4 Q2,0 14,4 Q26,8 38,4 Q50,0 62,4 Q74,8 86,4 L86,32 L-10,32 Z"
+              fill="rgba(167,139,250,0.4)"/>
+        <!-- wave layer 2 (reversed) -->
+        <path d="M-10,0 Q2,5 14,0 Q26,-5 38,0 Q50,5 62,0 Q74,-5 86,0 L86,32 L-10,32 Z"
+              fill="rgba(109,40,217,0.25)"/>
+      </g>
+      <!-- pulse ring (animated in CSS) -->
+      <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(167,139,250,0.3)" stroke-width="2"/>
+      <!-- eyes -->
+      <ellipse cx="24" cy="25" rx="2.5" ry="3" fill="#e8e8f0"/>
+      <ellipse cx="40" cy="25" rx="2.5" ry="3" fill="#e8e8f0"/>
+      <ellipse cx="24.6" cy="25.6" rx="1.2" ry="1.5" fill="#1a0a3e"/>
+      <ellipse cx="40.6" cy="25.6" rx="1.2" ry="1.5" fill="#1a0a3e"/>
+      <circle cx="25.2" cy="24.8" r="0.5" fill="white" opacity="0.8"/>
+      <circle cx="41.2" cy="24.8" r="0.5" fill="white" opacity="0.8"/>
+    </g>
+    <path d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z"
+          fill="none" stroke="rgba(139,92,246,0.6)" stroke-width="1"/>
+  </g>
+
+  <!-- ─── STATE 3: WARNING (80~99%) ─────────────────────── -->
+  <!--
+    fill     : #b45309 → #fcd34d (노란 그라디언트, 90% 채움)
+    눈       : 충혈 흰자 + 어두운 홍채 + 혈관 선
+    glow     : drop-shadow(0 0 10px rgba(245,158,11,0.6))
+    animation: shake (좌우 떨림)
+  -->
+  <g id="state-warning">
+    <defs>
+      <linearGradient id="gradWarn" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%" stop-color="#b45309"/>
+        <stop offset="60%" stop-color="#f59e0b"/>
+        <stop offset="100%" stop-color="#fcd34d"/>
+      </linearGradient>
+    </defs>
+    <path d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z" fill="#1a1510"/>
+    <g clip-path="url(#clip)">
+      <!-- fill: translateY(4%) = 96% 채워진 상태 -->
+      <g transform="translate(0, 2.56)">
+        <rect x="-4" y="-4" width="72" height="72" fill="url(#gradWarn)"/>
+        <path d="M-10,4 Q2,0 14,4 Q26,8 38,4 Q50,0 62,4 Q74,8 86,4 L86,32 L-10,32 Z"
+              fill="rgba(251,191,36,0.4)"/>
+      </g>
+      <!-- 충혈 눈 -->
+      <ellipse cx="24" cy="20" rx="2.8" ry="3.2" fill="#ffe4e4"/>
+      <ellipse cx="40" cy="20" rx="2.8" ry="3.2" fill="#ffe4e4"/>
+      <ellipse cx="24.6" cy="20.6" rx="1.4" ry="1.7" fill="#7f1d1d"/>
+      <ellipse cx="40.6" cy="20.6" rx="1.4" ry="1.7" fill="#7f1d1d"/>
+      <!-- 혈관 -->
+      <line x1="20" y1="16" x2="18" y2="14" stroke="#ef4444" stroke-width="0.8" opacity="0.7"/>
+      <line x1="22" y1="15" x2="21" y2="13" stroke="#ef4444" stroke-width="0.8" opacity="0.5"/>
+      <line x1="37" y1="15" x2="36" y2="13" stroke="#ef4444" stroke-width="0.8" opacity="0.5"/>
+      <line x1="39" y1="16" x2="41" y2="14" stroke="#ef4444" stroke-width="0.8" opacity="0.7"/>
+    </g>
+    <path d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z"
+          fill="none" stroke="rgba(245,158,11,0.7)" stroke-width="1.2"/>
+  </g>
+
+  <!-- ─── STATE 4: LIMIT_5H (100%, 세션 한도) ───────────── -->
+  <!--
+    fill     : #7f1d1d → #ef4444 (빨간, 완전히 꽉 참)
+    눈       : 잠든 눈 (arch shape) + Zzz 텍스트
+    glow     : drop-shadow(0 0 12px rgba(239,68,68,0.7))
+    animation: 없음 (굳어있음)
+  -->
+  <g id="state-limit-5h">
+    <defs>
+      <linearGradient id="gradLimit" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%" stop-color="#7f1d1d"/>
+        <stop offset="100%" stop-color="#ef4444"/>
+      </linearGradient>
+    </defs>
+    <path d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z" fill="#150808"/>
+    <g clip-path="url(#clip)">
+      <!-- fill: translateY(0%) = 100% 꽉 참 -->
+      <rect x="-4" y="-4" width="72" height="72" fill="url(#gradLimit)"/>
+      <!-- 잠든 눈 (아치) -->
+      <path d="M21 23 Q24 20 27 23" fill="none" stroke="#fca5a5" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M37 23 Q40 20 43 23" fill="none" stroke="#fca5a5" stroke-width="1.8" stroke-linecap="round"/>
+      <!-- Zzz -->
+      <text x="44" y="14" font-size="7" fill="#fca5a5" opacity="0.9" font-family="sans-serif">z</text>
+      <text x="47" y="10" font-size="5"  fill="#fca5a5" opacity="0.6" font-family="sans-serif">z</text>
+    </g>
+    <path d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z"
+          fill="none" stroke="rgba(239,68,68,0.8)" stroke-width="1.5"/>
+  </g>
+
+  <!-- ─── STATE 5: LIMIT_WEEK (주간 한도 초과) ──────────── -->
+  <!--
+    fill     : #111827 → #374151 (dark gray, 꽉 참)
+    눈       : XX 크로스 + 슬픈 입
+    glow     : drop-shadow(0 0 8px rgba(55,65,81,0.8)) + grayscale(0.7)
+    animation: deadFall (한 번만 재생, rotate 15deg)
+  -->
+  <g id="state-limit-week">
+    <defs>
+      <linearGradient id="gradDead" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%" stop-color="#111827"/>
+        <stop offset="100%" stop-color="#374151"/>
+      </linearGradient>
+    </defs>
+    <path d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z" fill="#0a0a0e"/>
+    <g clip-path="url(#clip)">
+      <rect x="-4" y="-4" width="72" height="72" fill="url(#gradDead)"/>
+      <!-- XX 눈 (왼쪽) -->
+      <line x1="20" y1="20" x2="26" y2="26" stroke="#9ca3af" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="26" y1="20" x2="20" y2="26" stroke="#9ca3af" stroke-width="2.2" stroke-linecap="round"/>
+      <!-- XX 눈 (오른쪽) -->
+      <line x1="36" y1="20" x2="42" y2="26" stroke="#9ca3af" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="42" y1="20" x2="36" y2="26" stroke="#9ca3af" stroke-width="2.2" stroke-linecap="round"/>
+      <!-- 슬픈 입 -->
+      <path d="M26 38 Q32 35 38 38" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/>
+    </g>
+    <path d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z"
+          fill="none" stroke="rgba(75,85,99,0.5)" stroke-width="1"/>
+  </g>
+
+  <!-- ─── STATE 6: ERROR ────────────────────────────────── -->
+  <!--
+    fill     : #1e1e28 → #2a2a40
+    눈       : 물음표 텍스트
+    glow     : none
+    animation: 없음
+  -->
+  <g id="state-error">
+    <path d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z" fill="#12121a"/>
+    <g clip-path="url(#clip)">
+      <text x="32" y="36" font-size="16" fill="#5a5a72" font-family="sans-serif" text-anchor="middle">?</text>
+    </g>
+    <path d="M32,4 C32,4 52,10 58,28 C64,46 52,58 32,60 C12,58 0,46 6,28 C12,10 32,4 32,4 Z"
+          fill="none" stroke="rgba(42,42,53,0.5)" stroke-width="1"/>
+  </g>
+</svg>

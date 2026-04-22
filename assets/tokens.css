@@ -1,0 +1,79 @@
+/*
+ * CaTokens — tokens.css
+ * ─────────────────────────────────────────────────────────────
+ * 디자인 토큰 (색상, 폰트, 반경 등)
+ * ─────────────────────────────────────────────────────────────
+ */
+
+:root {
+
+  /* ── 배경 ── */
+  --bg:           #0e0e11;
+  --panel:        #16161a;
+  --border:       #2a2a35;
+
+  /* ── 텍스트 ── */
+  --text:         #e8e8f0;
+  --muted:        #5a5a72;
+
+  /* ── Claude 브랜드 ── */
+  --claude-orange: #d4895a;
+  --claude-light:  #e8b48a;
+
+  /* ── 채움 색상 (상태별) ── */
+  --fill-idle-1:   #1e1e28;   /* idle grad bottom */
+  --fill-idle-2:   #2a2a40;   /* idle grad top    */
+
+  --fill-active-1: #4c1d95;   /* active grad bottom */
+  --fill-active-2: #a78bfa;   /* active grad top    */
+  --fill-active-mid: #8b5cf6; /* 중간값 (stroke 등) */
+
+  --fill-warn-1:   #b45309;   /* warning grad bottom */
+  --fill-warn-2:   #fcd34d;   /* warning grad top    */
+  --fill-warn-mid: #f59e0b;
+
+  --fill-limit-1:  #7f1d1d;   /* limit_5h grad bottom */
+  --fill-limit-2:  #ef4444;   /* limit_5h grad top    */
+
+  --fill-dead-1:   #111827;   /* limit_week grad bottom */
+  --fill-dead-2:   #374151;   /* limit_week grad top    */
+
+  /* ── 글로우 ── */
+  --glow-active:  0 0 10px rgba(139, 92, 246, 0.5);
+  --glow-warn:    0 0 10px rgba(245, 158, 11,  0.6);
+  --glow-danger:  0 0 12px rgba(239, 68,  68,  0.7);
+  --glow-dead:    0 0  8px rgba(55,  65,  81,  0.8);
+
+  /* ── 눈 색상 ── */
+  --eye-white:    #e8e8f0;
+  --eye-pupil:    #1a0a3e;
+  --eye-bloodshot-white: #ffe4e4;
+  --eye-bloodshot-pupil: #7f1d1d;
+  --eye-vein:     #ef4444;
+  --eye-sleep:    #fca5a5;
+  --eye-dead:     #9ca3af;
+  --eye-mouth:    #6b7280;
+
+  /* ── 타이포 ── */
+  --font-mono:    'Space Mono', monospace;
+  --font-sans:    'Sora', -apple-system, sans-serif;
+
+  /* ── 크기 ── */
+  --widget-size:     64px;
+  --widget-size-lg:  80px;   /* interactive demo */
+  --tray-size:       22px;
+
+  /* ── 반경 ── */
+  --panel-radius:   20px;
+  --badge-radius:   20px;
+
+  /* ── 애니메이션 타이밍 ── */
+  --ease-fill:    cubic-bezier(0.34, 1.56, 0.64, 1);  /* overshoot bounce */
+  --ease-fall:    cubic-bezier(0.55, 0,    1,    0.45); /* dead fall */
+  --dur-fill:     0.7s;
+  --dur-bounce:   1.8s;
+  --dur-shake:    0.5s;
+  --dur-fall:     0.8s;
+  --dur-wave:     2.5s;
+  --dur-pulse:    1.2s;
+}
