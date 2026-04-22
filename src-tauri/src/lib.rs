@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Manager, Runtime,
+    AppHandle, Emitter, Manager, Runtime,
 };
 
 // ─────────────────────────────────────────────
