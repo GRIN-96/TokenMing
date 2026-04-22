@@ -1,5 +1,5 @@
 /**
- * CaTokens — widget.js
+ * TokenMing — widget.js
  * ─────────────────────────────────────────────────────────────
  * 위젯 상태 전환 + 채움 애니메이션 로직
  * HTML에서 분리된 순수 JS 버전 (vanilla, no dependencies)

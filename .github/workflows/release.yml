@@ -47,9 +47,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: "CaTokens ${{ github.ref_name }}"
+          releaseName: "TokenMing ${{ github.ref_name }}"
           releaseBody: |
-            ## CaTokens 위젯
+            ## TokenMing 위젯
 
             Claude Code 토큰 사용량 데스크탑 위젯.
 

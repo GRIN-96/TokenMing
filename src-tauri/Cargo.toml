@@ -1,16 +1,16 @@
 [package]
-name = "catokens"
-version = "0.1.0"
+name = "tokenming"
+version = "0.1.2"
 description = "Claude Code token usage widget"
 authors = ["you"]
 edition = "2021"
 
 [lib]
-name = "catokens_lib"
+name = "tokenming_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [[bin]]
-name = "catokens"
+name = "tokenming"
 path = "src/main.rs"
 
 [build-dependencies]

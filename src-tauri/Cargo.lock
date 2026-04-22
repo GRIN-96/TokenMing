@@ -466,8 +466,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "catokens"
-version = "0.1.0"
+name = "tokenming"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "dirs 5.0.1",

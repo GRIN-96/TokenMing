@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "CaTokens",
-  "version": "0.1.1",
-  "identifier": "dev.catokens.app",
+  "productName": "TokenMing",
+  "version": "0.1.2",
+  "identifier": "dev.tokenming.app",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
@@ -14,7 +14,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "CaTokens",
+        "title": "TokenMing",
         "width": 80,
         "height": 80,
         "resizable": false,
