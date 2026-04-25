@@ -106,24 +106,27 @@ async fn show_context_menu<R: Runtime>(app: AppHandle<R>) -> Result<(), String> 
 // ─────────────────────────────────────────────
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
+pub fn run() -> anyhow::Result<()> {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![fetch_usage, show_context_menu])
         .setup(|app| {
-            // Hide from dock/taskbar — we are a widget only
             #[cfg(target_os = "macos")]
             {
                 app.set_activation_policy(tauri::ActivationPolicy::Accessory);
             }
 
-            // Build tray menu
             let quit = MenuItem::with_id(app, "quit", "종료", true, None::<&str>)?;
             let refresh = MenuItem::with_id(app, "refresh", "새로고침", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&refresh, &quit])?;
 
-            // Build tray icon
+            let icon = app
+                .default_window_icon()
+                .ok_or_else(|| anyhow::anyhow!("앱 아이콘을 찾을 수 없습니다"))?
+                .clone();
+
             TrayIconBuilder::new()
+                .icon(icon)
                 .menu(&menu)
                 .menu_on_left_click(false)
                 .on_menu_event(|app, event| match event.id.as_ref() {
@@ -131,7 +134,6 @@ pub fn run() {
                         app.exit(0);
                     }
                     "refresh" => {
-                        // Emit refresh event to frontend
                         let _ = app.emit("refresh", ());
                     }
                     _ => {}
@@ -153,6 +155,6 @@ pub fn run() {
 
             Ok(())
         })
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .run(tauri::generate_context!())?;
+    Ok(())
 }
