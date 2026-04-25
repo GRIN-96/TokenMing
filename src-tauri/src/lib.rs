@@ -1,10 +1,11 @@
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use tauri::{
-    menu::{Menu, MenuItem},
+    menu::{Menu, MenuItem, PredefinedMenuItem},
     tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
     AppHandle, Emitter, Manager, Runtime,
 };
+use tauri_plugin_shell::ShellExt;
 
 // ─────────────────────────────────────────────
 // Data types
@@ -35,11 +36,10 @@ struct OAuthData {
 }
 
 // ─────────────────────────────────────────────
-// Credential reading
+// Credential reading / writing
 // ─────────────────────────────────────────────
 
 fn get_access_token() -> anyhow::Result<String> {
-    // 1. Try OS keychain first (macOS Keychain / Windows Credential Manager)
     #[cfg(not(target_os = "linux"))]
     {
         let entry = keyring::Entry::new("Claude Code-credentials", "claude")?;
@@ -49,7 +49,6 @@ fn get_access_token() -> anyhow::Result<String> {
         }
     }
 
-    // 2. Fallback: read from ~/.claude/.credentials.json (Linux / fallback)
     let credentials_path = credentials_file_path()?;
     let contents = std::fs::read_to_string(&credentials_path)?;
     let creds: ClaudeCredentials = serde_json::from_str(&contents)?;
@@ -59,6 +58,18 @@ fn get_access_token() -> anyhow::Result<String> {
 fn credentials_file_path() -> anyhow::Result<PathBuf> {
     let home = dirs::home_dir().ok_or_else(|| anyhow::anyhow!("No home dir"))?;
     Ok(home.join(".claude").join(".credentials.json"))
+}
+
+fn clear_credentials() {
+    #[cfg(not(target_os = "linux"))]
+    {
+        if let Ok(entry) = keyring::Entry::new("Claude Code-credentials", "claude") {
+            let _ = entry.delete_credential();
+        }
+    }
+    if let Ok(path) = credentials_file_path() {
+        let _ = std::fs::remove_file(&path);
+    }
 }
 
 // ─────────────────────────────────────────────
@@ -94,10 +105,42 @@ async fn fetch_usage() -> Result<UsageResponse, String> {
 }
 
 #[tauri::command]
-async fn show_context_menu<R: Runtime>(app: AppHandle<R>) -> Result<(), String> {
-    // Context menu is handled by tray, this is a no-op placeholder
-    // Right-click on the tray icon shows the menu automatically
-    let _ = app;
+async fn get_auth_status() -> bool {
+    get_access_token().is_ok()
+}
+
+#[tauri::command]
+async fn logout(app: AppHandle) -> Result<(), String> {
+    clear_credentials();
+    let _ = app.emit("auth_changed", ());
+    Ok(())
+}
+
+#[tauri::command]
+async fn show_context_menu<R: Runtime>(
+    app: AppHandle<R>,
+    window: tauri::WebviewWindow<R>,
+) -> Result<(), String> {
+    let is_logged_in = get_access_token().is_ok();
+
+    let refresh = MenuItem::with_id(&app, "ctx_refresh", "새로고침", true, None::<&str>)
+        .map_err(|e| e.to_string())?;
+    let sep1 = PredefinedMenuItem::separator(&app).map_err(|e| e.to_string())?;
+    let auth_item = if is_logged_in {
+        MenuItem::with_id(&app, "ctx_logout", "로그아웃", true, None::<&str>)
+            .map_err(|e| e.to_string())?
+    } else {
+        MenuItem::with_id(&app, "ctx_login", "로그인", true, None::<&str>)
+            .map_err(|e| e.to_string())?
+    };
+    let sep2 = PredefinedMenuItem::separator(&app).map_err(|e| e.to_string())?;
+    let quit = MenuItem::with_id(&app, "ctx_quit", "종료", true, None::<&str>)
+        .map_err(|e| e.to_string())?;
+
+    let menu = Menu::with_items(&app, &[&refresh, &sep1, &auth_item, &sep2, &quit])
+        .map_err(|e| e.to_string())?;
+
+    window.popup_menu(&menu).map_err(|e| e.to_string())?;
     Ok(())
 }
 
@@ -109,7 +152,12 @@ async fn show_context_menu<R: Runtime>(app: AppHandle<R>) -> Result<(), String> 
 pub fn run() -> anyhow::Result<()> {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![fetch_usage, show_context_menu])
+        .invoke_handler(tauri::generate_handler![
+            fetch_usage,
+            get_auth_status,
+            logout,
+            show_context_menu
+        ])
         .setup(|app| {
             #[cfg(target_os = "macos")]
             {
@@ -152,6 +200,24 @@ pub fn run() -> anyhow::Result<()> {
                     }
                 })
                 .build(app)?;
+
+            // Handle popup menu events (ctx_*)
+            app.on_menu_event(|app, event| match event.id().as_ref() {
+                "ctx_refresh" => {
+                    let _ = app.emit("refresh", ());
+                }
+                "ctx_logout" => {
+                    clear_credentials();
+                    let _ = app.emit("auth_changed", ());
+                }
+                "ctx_login" => {
+                    let _ = app.shell().open("https://claude.ai", None::<&str>);
+                }
+                "ctx_quit" => {
+                    app.exit(0);
+                }
+                _ => {}
+            });
 
             Ok(())
         })
