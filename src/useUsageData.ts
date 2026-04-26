@@ -15,11 +15,8 @@ export interface UsageData {
   resets_at_5h: string | null;
   resets_at_7d: string | null;
   state: WidgetState;
-  tokens_used: number;
-  tokens_max: number;
 }
 
-const MAX_TOKENS_MAX5 = 88_000;
 const POLL_INTERVAL_MS = 30_000; // 30s
 
 export function useUsageData() {
@@ -29,8 +26,6 @@ export function useUsageData() {
     resets_at_5h: null,
     resets_at_7d: null,
     state: "idle",
-    tokens_used: 0,
-    tokens_max: MAX_TOKENS_MAX5,
   });
 
   const fetchUsage = useCallback(async () => {
@@ -44,7 +39,6 @@ export function useUsageData() {
       // API returns utilization as 0–100 percentage (not 0–1 fraction)
       const fivePct = Math.round(result.five_hour?.utilization ?? 0);
       const sevenPct = Math.round(result.seven_day?.utilization ?? 0);
-      const tokensUsed = Math.round((fivePct / 100) * MAX_TOKENS_MAX5);
 
       let state: WidgetState;
       if (sevenPct >= 100) {
@@ -65,8 +59,6 @@ export function useUsageData() {
         resets_at_5h: result.five_hour?.resets_at ?? null,
         resets_at_7d: result.seven_day?.resets_at ?? null,
         state,
-        tokens_used: tokensUsed,
-        tokens_max: MAX_TOKENS_MAX5,
       });
     } catch (err) {
       console.error("Failed to fetch usage:", err);

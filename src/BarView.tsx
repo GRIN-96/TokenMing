@@ -1,5 +1,14 @@
 import { UsageData, WidgetState } from "./useUsageData";
 
+function formatReset(iso: string | null) {
+  if (!iso) return "—";
+  const diff = new Date(iso).getTime() - Date.now();
+  if (diff <= 0) return "곧 리셋";
+  const h = Math.floor(diff / 3_600_000);
+  const m = Math.floor((diff % 3_600_000) / 60_000);
+  return h > 0 ? `${h}h ${m}m 후` : `${m}분 후`;
+}
+
 function stateColor(state: WidgetState) {
   if (state === "warning") return "#f59e0b";
   if (state === "limit_5h") return "#ef4444";
@@ -86,7 +95,7 @@ export default function BarView({ data }: { data: UsageData }) {
             ? "주간 한도 초과"
             : data.state === "limit_5h"
             ? "5h 한도 도달"
-            : `${data.tokens_used.toLocaleString()} tok — ${data.five_hour_pct}%`}
+            : `${data.five_hour_pct}% · 리셋 ${formatReset(data.resets_at_5h)}`}
         </div>
       </div>
 

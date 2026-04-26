@@ -90,7 +90,7 @@ export default function App() {
         style={{ width: 360, height: 480, display: "flex", alignItems: "flex-start", justifyContent: "flex-start" }}
         onContextMenu={(e) => e.preventDefault()}
       >
-        <ExpandedView data={data} onClose={() => setExpanded(false)} />
+        <ExpandedView data={data} onClose={() => setExpanded(false)} onRefresh={refetch} />
       </div>
     );
   }
