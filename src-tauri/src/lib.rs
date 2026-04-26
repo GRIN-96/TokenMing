@@ -120,12 +120,21 @@ async fn logout(app: AppHandle) -> Result<(), String> {
 async fn show_context_menu<R: Runtime>(
     app: AppHandle<R>,
     window: tauri::WebviewWindow<R>,
+    current_mode: String,
 ) -> Result<(), String> {
     let is_logged_in = get_access_token().is_ok();
+
+    let minimal_label = if current_mode == "minimal" { "✓ 아이콘 모드" } else { "  아이콘 모드" };
+    let bar_label = if current_mode == "bar" { "✓ 바 모드" } else { "  바 모드" };
 
     let refresh = MenuItem::with_id(&app, "ctx_refresh", "새로고침", true, None::<&str>)
         .map_err(|e| e.to_string())?;
     let sep1 = PredefinedMenuItem::separator(&app).map_err(|e| e.to_string())?;
+    let mode_minimal = MenuItem::with_id(&app, "ctx_mode_minimal", minimal_label, true, None::<&str>)
+        .map_err(|e| e.to_string())?;
+    let mode_bar = MenuItem::with_id(&app, "ctx_mode_bar", bar_label, true, None::<&str>)
+        .map_err(|e| e.to_string())?;
+    let sep2 = PredefinedMenuItem::separator(&app).map_err(|e| e.to_string())?;
     let auth_item = if is_logged_in {
         MenuItem::with_id(&app, "ctx_logout", "로그아웃", true, None::<&str>)
             .map_err(|e| e.to_string())?
@@ -133,11 +142,11 @@ async fn show_context_menu<R: Runtime>(
         MenuItem::with_id(&app, "ctx_login", "로그인", true, None::<&str>)
             .map_err(|e| e.to_string())?
     };
-    let sep2 = PredefinedMenuItem::separator(&app).map_err(|e| e.to_string())?;
+    let sep3 = PredefinedMenuItem::separator(&app).map_err(|e| e.to_string())?;
     let quit = MenuItem::with_id(&app, "ctx_quit", "종료", true, None::<&str>)
         .map_err(|e| e.to_string())?;
 
-    let menu = Menu::with_items(&app, &[&refresh, &sep1, &auth_item, &sep2, &quit])
+    let menu = Menu::with_items(&app, &[&refresh, &sep1, &mode_minimal, &mode_bar, &sep2, &auth_item, &sep3, &quit])
         .map_err(|e| e.to_string())?;
 
     window.popup_menu(&menu).map_err(|e| e.to_string())?;
@@ -216,6 +225,12 @@ pub fn run() -> anyhow::Result<()> {
                 }
                 "ctx_quit" => {
                     app.exit(0);
+                }
+                "ctx_mode_minimal" => {
+                    let _ = app.emit("mode_changed", "minimal");
+                }
+                "ctx_mode_bar" => {
+                    let _ = app.emit("mode_changed", "bar");
                 }
                 _ => {}
             });

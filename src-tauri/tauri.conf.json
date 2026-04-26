@@ -25,9 +25,7 @@
         "skipTaskbar": true,
         "shadow": false,
         "x": 40,
-        "y": 40,
-        "minWidth": 80,
-        "minHeight": 80
+        "y": 40
       }
     ],
     "trayIcon": {
