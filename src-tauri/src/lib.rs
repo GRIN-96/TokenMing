@@ -64,7 +64,7 @@ fn clear_credentials() {
     #[cfg(not(target_os = "linux"))]
     {
         if let Ok(entry) = keyring::Entry::new("Claude Code-credentials", "claude") {
-            let _ = entry.delete_credential();
+            let _ = entry.delete_password();
         }
     }
     if let Ok(path) = credentials_file_path() {
@@ -176,7 +176,7 @@ pub fn run() -> anyhow::Result<()> {
             TrayIconBuilder::new()
                 .icon(icon)
                 .menu(&menu)
-                .menu_on_left_click(false)
+                .show_menu_on_left_click(false)
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "quit" => {
                         app.exit(0);
@@ -212,7 +212,7 @@ pub fn run() -> anyhow::Result<()> {
                     let _ = app.emit("auth_changed", ());
                 }
                 "ctx_login" => {
-                    let _ = app.shell().open("https://claude.ai", None::<String>);
+                    let _ = app.shell().open("https://claude.ai", None);
                 }
                 "ctx_quit" => {
                     app.exit(0);
