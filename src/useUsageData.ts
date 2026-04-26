@@ -41,8 +41,9 @@ export function useUsageData() {
         seven_day: { utilization: number; resets_at: string | null } | null;
       }>("fetch_usage");
 
-      const fivePct = Math.round((result.five_hour?.utilization ?? 0) * 100);
-      const sevenPct = Math.round((result.seven_day?.utilization ?? 0) * 100);
+      // API returns utilization as 0–100 percentage (not 0–1 fraction)
+      const fivePct = Math.round(result.five_hour?.utilization ?? 0);
+      const sevenPct = Math.round(result.seven_day?.utilization ?? 0);
       const tokensUsed = Math.round((fivePct / 100) * MAX_TOKENS_MAX5);
 
       let state: WidgetState;

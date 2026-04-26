@@ -23,7 +23,7 @@ export default function ClaudeWidget({ pct, state }: Props) {
   // Color config per state
   const colors = {
     idle: { grad1: "#1e1e28", grad2: "#2a2a40", stroke: "rgba(42,42,53,0.8)", glow: "none" },
-    active: { grad1: "#4c1d95", grad2: "#a78bfa", stroke: "rgba(139,92,246,0.6)", glow: "0 0 14px rgba(139,92,246,0.5)" },
+    active: { grad1: "#1a7a43", grad2: "#2ecc71", stroke: "rgba(46,204,113,0.6)", glow: "0 0 14px rgba(46,204,113,0.5)" },
     warning: { grad1: "#b45309", grad2: "#fcd34d", stroke: "rgba(245,158,11,0.7)", glow: "0 0 14px rgba(245,158,11,0.6)" },
     limit_5h: { grad1: "#7f1d1d", grad2: "#ef4444", stroke: "rgba(239,68,68,0.8)", glow: "0 0 16px rgba(239,68,68,0.7)" },
     limit_week: { grad1: "#111827", grad2: "#374151", stroke: "rgba(75,85,99,0.5)", glow: "none" },
@@ -125,8 +125,8 @@ export default function ClaudeWidget({ pct, state }: Props) {
             {/* Wave on top of fill */}
             {(isActive || isWarning) && (
               <>
-                <path className="wave1" fill="rgba(167,139,250,0.35)" />
-                <path className="wave2" fill="rgba(109,40,217,0.2)" />
+                <path className="wave1" fill="rgba(46,204,113,0.3)" />
+                <path className="wave2" fill="rgba(26,122,67,0.2)" />
               </>
             )}
           </g>
@@ -138,7 +138,7 @@ export default function ClaudeWidget({ pct, state }: Props) {
               cy="32"
               r="28"
               fill="none"
-              stroke="rgba(167,139,250,0.3)"
+              stroke="rgba(46,204,113,0.3)"
               strokeWidth="2"
               className="pulse"
             />

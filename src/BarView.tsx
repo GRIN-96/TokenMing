@@ -6,7 +6,7 @@ function stateColor(state: WidgetState) {
   if (state === "limit_week") return "#6b7280";
   if (state === "error") return "#5a5a72";
   if (state === "idle") return "#3a3a50";
-  return "#8b5cf6";
+  return "#2ecc71";
 }
 
 export default function BarView({ data }: { data: UsageData }) {

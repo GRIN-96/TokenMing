@@ -13,7 +13,7 @@ function formatReset(iso: string | null) {
 function stateLabel(state: WidgetState) {
   switch (state) {
     case "idle":       return { text: "유휴",         color: "#5a5a72" };
-    case "active":     return { text: "● 활성",       color: "#8b5cf6" };
+    case "active":     return { text: "● 활성",       color: "#2ecc71" };
     case "warning":    return { text: "⚠ 한도 임박",  color: "#f59e0b" };
     case "limit_5h":   return { text: "😴 5h 한도",   color: "#ef4444" };
     case "limit_week": return { text: "💀 주간 초과", color: "#6b7280" };
@@ -40,9 +40,9 @@ function Bar({ pct, color }: { pct: number; color: string }) {
 export default function ExpandedView({ data, onClose }: { data: UsageData; onClose: () => void }) {
   const label = stateLabel(data.state);
   const fiveColor =
-    data.five_hour_pct >= 100 ? "#ef4444" : data.five_hour_pct >= 80 ? "#f59e0b" : "#8b5cf6";
+    data.five_hour_pct >= 100 ? "#ef4444" : data.five_hour_pct >= 80 ? "#f59e0b" : "#2ecc71";
   const weekColor =
-    data.seven_day_pct >= 100 ? "#ef4444" : data.seven_day_pct >= 80 ? "#f59e0b" : "#6366f1";
+    data.seven_day_pct >= 100 ? "#ef4444" : data.seven_day_pct >= 80 ? "#f59e0b" : "#2ecc71";
 
   return (
     <>
