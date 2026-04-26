@@ -537,6 +537,8 @@ function updateWidget(pct) {
 
   hideAllEyes();
   demoPulse.style.display = 'none';
+  demoWidget.style.animation = '';  // 인라인 애니메이션 초기화 (dead-fall 잔상 제거)
+  demoWidget.style.filter = '';     // 인라인 filter 초기화 (grayscale 잔상 제거)
   demoWidget.className = 'widget demo-widget';
 
   const fc = barColor(pct);
