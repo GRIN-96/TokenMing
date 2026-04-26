@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TokenMing — Visual Prototype</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0e11;
+    --panel: #13131a;
+    --border: #1e1e28;
+    --text: #e8e8f0;
+    --muted: #5a5a72;
+    --green: #2ecc71;
+    --green-dark: #1a7a43;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+  }
+
+  body {
+    background: var(--bg);
+    font-family: 'Sora', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+    padding: 40px 20px;
+  }
+
+  h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .states-grid {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-end;
+  }
+
+  .state-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .state-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  /* ── WIDGET SHELL ── */
+  .widget {
+    width: 64px;
+    height: 64px;
+    position: relative;
+    cursor: pointer;
+    transition: filter 0.3s ease, transform 0.15s ease;
+  }
+  .widget:hover { transform: scale(1.08); }
+  .widget svg { width: 100%; height: 100%; overflow: visible; }
+
+  /* ── ANIMATIONS ── */
+  .bounce { animation: bounce 1.8s ease-in-out infinite; }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-4px); }
+  }
+
+  .wave-path  { animation: waveFlow  2.5s ease-in-out infinite; }
+  .wave-path2 { animation: waveFlow2 2.5s ease-in-out infinite; opacity: 0.4; }
+  @keyframes waveFlow  { 0%,100%{d:path("M-10,4 Q2,0 14,4 Q26,8 38,4 Q50,0 62,4 Q74,8 86,4 L86,40 L-10,40 Z")} 50%{d:path("M-10,0 Q2,5 14,0 Q26,-5 38,0 Q50,5 62,0 Q74,-5 86,0 L86,40 L-10,40 Z")} }
+  @keyframes waveFlow2 { 0%,100%{d:path("M-10,0 Q2,5 14,0 Q26,-5 38,0 Q50,5 62,0 Q74,-5 86,0 L86,40 L-10,40 Z")} 50%{d:path("M-10,4 Q2,0 14,4 Q26,8 38,4 Q50,0 62,4 Q74,8 86,4 L86,40 L-10,40 Z")} }
+
+  .shake { animation: shake 0.45s ease-in-out infinite; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-3px) rotate(-1deg); }
+    40%       { transform: translateX(3px) rotate(1deg); }
+    60%       { transform: translateX(-2px); }
+    80%       { transform: translateX(2px); }
+  }
+
+  .dead-fall { animation: deadFall 0.9s cubic-bezier(0.55,0,1,0.45) forwards; }
+  @keyframes deadFall {
+    0%   { transform: rotate(0deg) translateY(0); opacity: 1; }
+    40%  { transform: rotate(-8deg) translateY(-3px); }
+    100% { transform: rotate(15deg) translateY(6px); opacity: 0.7; }
+  }
+
+  .pulse-ring { animation: pulseRing 1.4s ease-out infinite; transform-origin: 32px 32px; }
+  @keyframes pulseRing { 0%{r:28px;opacity:.5} 100%{r:42px;opacity:0} }
+
+  /* ── GLOW ── */
+  .glow-green  { filter: drop-shadow(0 0 10px rgba(46,204,113,0.5)); }
+  .glow-warn   { filter: drop-shadow(0 0 10px rgba(245,158,11,0.6)); }
+  .glow-danger { filter: drop-shadow(0 0 12px rgba(239,68,68,0.7)); }
+  .glow-dead   { filter: drop-shadow(0 0 6px rgba(55,65,81,0.5)) grayscale(0.6); }
+
+  /* ── INTERACTIVE DEMO ── */
+  .demo-section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    width: 360px;
+  }
+
+  .demo-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .demo-widget-wrap {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .demo-widget { width: 80px; height: 80px; }
+
+  .pct-readout {
+    font-family: 'Space Mono', monospace;
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    text-align: center;
+    line-height: 1;
+  }
+  .pct-readout span { font-size: 18px; color: var(--muted); font-weight: 400; }
+  .pct-sub {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 4px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.08em;
+  }
+
+  .slider-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .slider-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--green);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
+
+  .status-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid currentColor;
+    opacity: 0.9;
+    transition: all 0.3s;
+  }
+
+  /* ── BAR PREVIEW ── */
+  .bar-preview {
+    width: 280px;
+    height: 52px;
+    background: rgba(14,14,17,0.92);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .bar-mini-svg { width: 30px; height: 30px; overflow: visible; flex-shrink: 0; }
+  .bar-text { flex: 1; min-width: 0; }
+  .bar-title { font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .bar-sub   { font-family: monospace; font-size: 11px; color: #9a9ab0; line-height: 1.3; margin-top: 1px; }
+  .bar-dot   { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<h1>TokenMing — Visual Prototype</h1>
+
+<!-- STATE SHOWCASE -->
+<div class="states-grid">
+
+  <!-- 0% Idle -->
+  <div class="state-item">
+    <div class="widget">
+      <svg viewBox="0 0 64 64">
+        <defs><clipPath id="c0"><path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z"/></clipPath></defs>
+        <path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z" fill="#0d0d14"/>
+        <g clip-path="url(#c0)" opacity="0.3">
+          <ellipse cx="24" cy="28" rx="2" ry="2.5" fill="#4a4a6a"/>
+          <ellipse cx="40" cy="28" rx="2" ry="2.5" fill="#4a4a6a"/>
+        </g>
+        <path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z" fill="none" stroke="rgba(42,42,53,0.6)" stroke-width="1.2"/>
+      </svg>
+    </div>
+    <span class="state-label">0% — 유휴</span>
+  </div>
+
+  <!-- 30% Active -->
+  <div class="state-item">
+    <div class="widget bounce glow-green">
+      <svg viewBox="0 0 64 64">
+        <defs>
+          <clipPath id="c30"><path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z"/></clipPath>
+          <linearGradient id="g30" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#1a7a43"/><stop offset="100%" stop-color="#2ecc71"/>
+          </linearGradient>
+        </defs>
+        <path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z" fill="#0d0d14"/>
+        <g clip-path="url(#c30)">
+          <g style="transform:translateY(45%)">
+            <rect x="-4" y="-4" width="72" height="72" fill="url(#g30)"/>
+            <path class="wave-path" fill="rgba(46,204,113,0.3)"/>
+          </g>
+          <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(46,204,113,0.25)" stroke-width="2" class="pulse-ring"/>
+          <ellipse cx="24" cy="25" rx="2.5" ry="3" fill="#e8e8f0"/>
+          <ellipse cx="40" cy="25" rx="2.5" ry="3" fill="#e8e8f0"/>
+          <ellipse cx="24.6" cy="25.6" rx="1.2" ry="1.5" fill="#1a0a3e"/>
+          <ellipse cx="40.6" cy="25.6" rx="1.2" ry="1.5" fill="#1a0a3e"/>
+        </g>
+        <path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z" fill="none" stroke="rgba(46,204,113,0.5)" stroke-width="1.2"/>
+      </svg>
+    </div>
+    <span class="state-label">30% — 활성</span>
+  </div>
+
+  <!-- 65% Active -->
+  <div class="state-item">
+    <div class="widget bounce glow-green">
+      <svg viewBox="0 0 64 64">
+        <defs>
+          <clipPath id="c65"><path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z"/></clipPath>
+          <linearGradient id="g65" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#1a7a43"/><stop offset="100%" stop-color="#2ecc71"/>
+          </linearGradient>
+        </defs>
+        <path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z" fill="#0d0d14"/>
+        <g clip-path="url(#c65)">
+          <g style="transform:translateY(18%)">
+            <rect x="-4" y="-4" width="72" height="72" fill="url(#g65)"/>
+            <path class="wave-path" fill="rgba(46,204,113,0.3)"/>
+            <path class="wave-path2" fill="rgba(26,122,67,0.2)"/>
+          </g>
+          <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(46,204,113,0.25)" stroke-width="2" class="pulse-ring"/>
+          <ellipse cx="24" cy="25" rx="2.5" ry="3" fill="#e8e8f0"/>
+          <ellipse cx="40" cy="25" rx="2.5" ry="3" fill="#e8e8f0"/>
+          <ellipse cx="24.6" cy="25.6" rx="1.2" ry="1.5" fill="#1a0a3e"/>
+          <ellipse cx="40.6" cy="25.6" rx="1.2" ry="1.5" fill="#1a0a3e"/>
+          <circle cx="25.2" cy="24.8" r="0.5" fill="white" opacity="0.8"/>
+          <circle cx="41.2" cy="24.8" r="0.5" fill="white" opacity="0.8"/>
+        </g>
+        <path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z" fill="none" stroke="rgba(46,204,113,0.6)" stroke-width="1.2"/>
+      </svg>
+    </div>
+    <span class="state-label">65% — 소모중</span>
+  </div>
+
+  <!-- 90% Warning -->
+  <div class="state-item">
+    <div class="widget shake glow-warn">
+      <svg viewBox="0 0 64 64">
+        <defs>
+          <clipPath id="c90"><path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z"/></clipPath>
+          <linearGradient id="g90" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#b45309"/><stop offset="100%" stop-color="#fcd34d"/>
+          </linearGradient>
+        </defs>
+        <path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z" fill="#0d0d14"/>
+        <g clip-path="url(#c90)">
+          <g style="transform:translateY(4%)">
+            <rect x="-4" y="-4" width="72" height="72" fill="url(#g90)"/>
+            <path class="wave-path" fill="rgba(251,191,36,0.4)"/>
+          </g>
+          <ellipse cx="24" cy="22" rx="2.8" ry="3.2" fill="#ffe4e4"/>
+          <ellipse cx="40" cy="22" rx="2.8" ry="3.2" fill="#ffe4e4"/>
+          <ellipse cx="24.6" cy="22.6" rx="1.4" ry="1.7" fill="#7f1d1d"/>
+          <ellipse cx="40.6" cy="22.6" rx="1.4" ry="1.7" fill="#7f1d1d"/>
+          <line x1="21" y1="18" x2="19" y2="16" stroke="#ef4444" stroke-width="0.7" opacity="0.7"/>
+          <line x1="38" y1="17" x2="37" y2="15" stroke="#ef4444" stroke-width="0.7" opacity="0.5"/>
+          <line x1="40" y1="18" x2="42" y2="16" stroke="#ef4444" stroke-width="0.7" opacity="0.7"/>
+        </g>
+        <path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z" fill="none" stroke="rgba(245,158,11,0.7)" stroke-width="1.2"/>
+      </svg>
+    </div>
+    <span class="state-label">90% — 경고</span>
+  </div>
+
+  <!-- 100% 5h limit -->
+  <div class="state-item">
+    <div class="widget glow-danger">
+      <svg viewBox="0 0 64 64">
+        <defs>
+          <clipPath id="c100"><path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z"/></clipPath>
+          <linearGradient id="g100" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#7f1d1d"/><stop offset="100%" stop-color="#ef4444"/>
+          </linearGradient>
+        </defs>
+        <path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z" fill="#0d0d14"/>
+        <g clip-path="url(#c100)">
+          <rect x="-4" y="-4" width="72" height="72" fill="url(#g100)"/>
+          <path d="M21 23 Q24 20 27 23" fill="none" stroke="#fca5a5" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M37 23 Q40 20 43 23" fill="none" stroke="#fca5a5" stroke-width="1.8" stroke-linecap="round"/>
+          <text x="44" y="14" font-size="7" fill="#fca5a5" opacity="0.9" font-family="sans-serif">z</text>
+          <text x="47" y="10" font-size="5" fill="#fca5a5" opacity="0.6" font-family="sans-serif">z</text>
+        </g>
+        <path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z" fill="none" stroke="rgba(239,68,68,0.8)" stroke-width="1.2"/>
+      </svg>
+    </div>
+    <span class="state-label">5h 한도</span>
+  </div>
+
+  <!-- Dead — weekly limit -->
+  <div class="state-item">
+    <div class="widget glow-dead dead-fall">
+      <svg viewBox="0 0 64 64">
+        <defs>
+          <clipPath id="cDead"><path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z"/></clipPath>
+          <linearGradient id="gDead" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#111827"/><stop offset="100%" stop-color="#374151"/>
+          </linearGradient>
+        </defs>
+        <path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z" fill="#0d0d14"/>
+        <g clip-path="url(#cDead)">
+          <rect x="-4" y="-4" width="72" height="72" fill="url(#gDead)"/>
+          <line x1="20" y1="20" x2="26" y2="26" stroke="#9ca3af" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="26" y1="20" x2="20" y2="26" stroke="#9ca3af" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="36" y1="20" x2="42" y2="26" stroke="#9ca3af" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="42" y1="20" x2="36" y2="26" stroke="#9ca3af" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M26 38 Q32 35 38 38" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/>
+        </g>
+        <path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z" fill="none" stroke="rgba(75,85,99,0.5)" stroke-width="1.2"/>
+      </svg>
+    </div>
+    <span class="state-label">주간한도 초과 💀</span>
+  </div>
+
+</div>
+
+<!-- ── INTERACTIVE DEMO ── -->
+<div class="demo-section">
+  <span class="demo-title">Interactive Demo</span>
+
+  <div class="demo-widget-wrap">
+    <div class="widget demo-widget bounce" id="demoWidget">
+      <svg viewBox="0 0 64 64" id="demoSvg">
+        <defs>
+          <clipPath id="demoClip">
+            <path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z"/>
+          </clipPath>
+          <linearGradient id="demoGrad" x1="0" y1="1" x2="0" y2="0">
+            <stop id="demoG1" offset="0%" stop-color="#1a7a43"/>
+            <stop id="demoG2" offset="100%" stop-color="#2ecc71"/>
+          </linearGradient>
+        </defs>
+        <path d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z" fill="#0d0d14"/>
+        <g clip-path="url(#demoClip)">
+          <g id="demoFill" style="transform:translateY(100%)">
+            <rect x="-4" y="-4" width="72" height="72" fill="url(#demoGrad)"/>
+            <path id="demoWave1" class="wave-path" fill="rgba(46,204,113,0.3)"/>
+            <path id="demoWave2" class="wave-path2" fill="rgba(26,122,67,0.2)"/>
+          </g>
+          <circle id="demoPulse" cx="32" cy="32" r="28" fill="none" stroke="rgba(46,204,113,0.25)" stroke-width="2" class="pulse-ring" style="display:none"/>
+          <!-- Normal eyes -->
+          <g id="eyesNormal" style="display:none">
+            <ellipse cx="24" cy="25" rx="2.5" ry="3" fill="#e8e8f0"/>
+            <ellipse cx="40" cy="25" rx="2.5" ry="3" fill="#e8e8f0"/>
+            <ellipse cx="24.6" cy="25.6" rx="1.2" ry="1.5" fill="#1a0a3e"/>
+            <ellipse cx="40.6" cy="25.6" rx="1.2" ry="1.5" fill="#1a0a3e"/>
+            <circle cx="25.2" cy="24.8" r="0.5" fill="white" opacity="0.8"/>
+            <circle cx="41.2" cy="24.8" r="0.5" fill="white" opacity="0.8"/>
+          </g>
+          <!-- Idle eyes -->
+          <g id="eyesIdle" style="display:none" opacity="0.3">
+            <ellipse cx="24" cy="28" rx="2" ry="2.5" fill="#4a4a6a"/>
+            <ellipse cx="40" cy="28" rx="2" ry="2.5" fill="#4a4a6a"/>
+          </g>
+          <!-- Warning eyes -->
+          <g id="eyesWarn" style="display:none">
+            <ellipse cx="24" cy="22" rx="2.8" ry="3.2" fill="#ffe4e4"/>
+            <ellipse cx="40" cy="22" rx="2.8" ry="3.2" fill="#ffe4e4"/>
+            <ellipse cx="24.6" cy="22.6" rx="1.4" ry="1.7" fill="#7f1d1d"/>
+            <ellipse cx="40.6" cy="22.6" rx="1.4" ry="1.7" fill="#7f1d1d"/>
+            <line x1="21" y1="18" x2="19" y2="16" stroke="#ef4444" stroke-width="0.7" opacity="0.7"/>
+            <line x1="40" y1="18" x2="42" y2="16" stroke="#ef4444" stroke-width="0.7" opacity="0.7"/>
+          </g>
+          <!-- Sleep eyes (5h limit) -->
+          <g id="eyesSleep" style="display:none">
+            <path d="M21 23 Q24 20 27 23" fill="none" stroke="#fca5a5" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M37 23 Q40 20 43 23" fill="none" stroke="#fca5a5" stroke-width="1.8" stroke-linecap="round"/>
+            <text x="44" y="14" font-size="7" fill="#fca5a5" font-family="sans-serif">z</text>
+          </g>
+          <!-- Dead eyes -->
+          <g id="eyesDead" style="display:none">
+            <line x1="20" y1="20" x2="26" y2="26" stroke="#9ca3af" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="26" y1="20" x2="20" y2="26" stroke="#9ca3af" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="36" y1="20" x2="42" y2="26" stroke="#9ca3af" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="42" y1="20" x2="36" y2="26" stroke="#9ca3af" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M26 38 Q32 35 38 38" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/>
+          </g>
+        </g>
+        <path id="demoOutline" d="M32,3 C32,3 54,9 60,28 C66,47 54,59 32,61 C10,59 -2,47 4,28 C10,9 32,3 32,3 Z" fill="none" stroke="rgba(46,204,113,0.5)" stroke-width="1.2" style="transition:stroke .5s"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="pct-readout" id="pctReadout">0<span>%</span></div>
+  <div class="pct-sub">5시간 세션 사용률</div>
+  <div class="status-badge" id="statusBadge" style="color:#5a5a72;border-color:#1e1e28">IDLE</div>
+
+  <div class="slider-wrap">
+    <div class="slider-label">
+      <span>TOKEN USAGE</span>
+      <span id="pctLabel">0%</span>
+    </div>
+    <input type="range" min="0" max="105" value="0" id="tokenSlider">
+  </div>
+</div>
+
+<!-- BAR VIEW PREVIEW -->
+<div class="bar-preview" id="barPreview">
+  <svg class="bar-mini-svg" viewBox="0 0 32 32">
+    <defs>
+      <clipPath id="bClip"><path d="M16,1.5 C16,1.5 27,4.5 30,13 C33,21.5 27,28 16,29 C5,28 -1,21.5 2,13 C5,4.5 16,1.5 16,1.5 Z"/></clipPath>
+      <linearGradient id="bGrad" x1="0" y1="1" x2="0" y2="0">
+        <stop id="bG1" offset="0%" stop-color="#1a7a43"/>
+        <stop id="bG2" offset="100%" stop-color="#2ecc71"/>
+      </linearGradient>
+    </defs>
+    <path d="M16,1.5 C16,1.5 27,4.5 30,13 C33,21.5 27,28 16,29 C5,28 -1,21.5 2,13 C5,4.5 16,1.5 16,1.5 Z" fill="#12121a"/>
+    <g clip-path="url(#bClip)">
+      <g id="barFill" style="transform:translateY(100%);transition:transform .8s cubic-bezier(0.34,1.56,0.64,1)">
+        <rect x="-2" y="-2" width="36" height="36" fill="url(#bGrad)"/>
+      </g>
+    </g>
+    <path d="M16,1.5 C16,1.5 27,4.5 30,13 C33,21.5 27,28 16,29 C5,28 -1,21.5 2,13 C5,4.5 16,1.5 16,1.5 Z" fill="none" stroke="rgba(46,204,113,0.4)" stroke-width=".8"/>
+  </svg>
+  <div class="bar-text">
+    <div class="bar-title">Claude Code</div>
+    <div class="bar-sub" id="barSub">0%</div>
+  </div>
+  <div class="bar-dot" id="barDot" style="background:#5a5a72"></div>
+</div>
+
+<script>
+const slider      = document.getElementById('tokenSlider');
+const demoWidget  = document.getElementById('demoWidget');
+const demoFill    = document.getElementById('demoFill');
+const demoOutline = document.getElementById('demoOutline');
+const demoPulse   = document.getElementById('demoPulse');
+const demoG1      = document.getElementById('demoG1');
+const demoG2      = document.getElementById('demoG2');
+const pctReadout  = document.getElementById('pctReadout');
+const pctLabel    = document.getElementById('pctLabel');
+const statusBadge = document.getElementById('statusBadge');
+const barFill     = document.getElementById('barFill');
+const barSub      = document.getElementById('barSub');
+const barDot      = document.getElementById('barDot');
+const bG1         = document.getElementById('bG1');
+const bG2         = document.getElementById('bG2');
+const eyesNormal  = document.getElementById('eyesNormal');
+const eyesIdle    = document.getElementById('eyesIdle');
+const eyesWarn    = document.getElementById('eyesWarn');
+const eyesSleep   = document.getElementById('eyesSleep');
+const eyesDead    = document.getElementById('eyesDead');
+
+function hideAllEyes() {
+  [eyesNormal, eyesIdle, eyesWarn, eyesSleep, eyesDead].forEach(e => e.style.display = 'none');
+}
+
+function barColor(pct) {
+  if (pct >= 100) return '#ef4444';
+  if (pct >= 80)  return '#f59e0b';
+  return '#2ecc71';
+}
+
+function updateWidget(pct) {
+  const fillY = 100 - Math.min(pct, 100);
+  demoFill.style.transform = `translateY(${fillY}%)`;
+  demoFill.style.transition = 'transform 0.8s cubic-bezier(0.34,1.56,0.64,1)';
+  barFill.style.transform = `translateY(${fillY}%)`;
+
+  pctReadout.innerHTML = `${Math.min(pct,100)}<span>%</span>`;
+  pctLabel.textContent = `${pct}%`;
+
+  hideAllEyes();
+  demoPulse.style.display = 'none';
+  demoWidget.className = 'widget demo-widget';
+
+  const fc = barColor(pct);
+  barDot.style.background = fc;
+  barDot.style.boxShadow = `0 0 6px ${fc}80`;
+
+  if (pct > 100) {
+    // Dead (weekly)
+    eyesDead.style.display = 'block';
+    demoWidget.className = 'widget demo-widget glow-dead';
+    demoWidget.style.animation = 'deadFall 0.9s cubic-bezier(0.55,0,1,0.45) forwards';
+    demoOutline.style.stroke = 'rgba(75,85,99,0.5)';
+    demoG1.style.stopColor = '#111827'; demoG2.style.stopColor = '#374151';
+    bG1.style.stopColor = '#111827'; bG2.style.stopColor = '#374151';
+    statusBadge.textContent = '💀 주간 초과';
+    statusBadge.style.color = '#6b7280'; statusBadge.style.borderColor = '#6b728040'; statusBadge.style.background = '#6b728012';
+    barSub.textContent = '주간 한도 초과';
+  } else if (pct >= 100) {
+    // 5h limit
+    eyesSleep.style.display = 'block';
+    demoWidget.className = 'widget demo-widget glow-danger';
+    demoOutline.style.stroke = 'rgba(239,68,68,0.8)';
+    demoG1.style.stopColor = '#7f1d1d'; demoG2.style.stopColor = '#ef4444';
+    bG1.style.stopColor = '#7f1d1d'; bG2.style.stopColor = '#ef4444';
+    statusBadge.textContent = '😴 5h 한도';
+    statusBadge.style.color = '#ef4444'; statusBadge.style.borderColor = '#ef444440'; statusBadge.style.background = '#ef444412';
+    barSub.textContent = '5h 한도 도달';
+  } else if (pct >= 80) {
+    // Warning
+    eyesWarn.style.display = 'block';
+    demoWidget.className = 'widget demo-widget shake glow-warn';
+    demoOutline.style.stroke = 'rgba(245,158,11,0.7)';
+    demoG1.style.stopColor = '#b45309'; demoG2.style.stopColor = '#fcd34d';
+    bG1.style.stopColor = '#b45309'; bG2.style.stopColor = '#fcd34d';
+    statusBadge.textContent = '⚠ 한도 임박';
+    statusBadge.style.color = '#f59e0b'; statusBadge.style.borderColor = '#f59e0b40'; statusBadge.style.background = '#f59e0b12';
+    barSub.textContent = `${pct}%`;
+  } else if (pct >= 10) {
+    // Active
+    eyesNormal.style.display = 'block';
+    demoPulse.style.display = 'block';
+    demoWidget.className = 'widget demo-widget bounce glow-green';
+    demoOutline.style.stroke = 'rgba(46,204,113,0.5)';
+    demoG1.style.stopColor = '#1a7a43'; demoG2.style.stopColor = '#2ecc71';
+    bG1.style.stopColor = '#1a7a43'; bG2.style.stopColor = '#2ecc71';
+    statusBadge.textContent = '● 활성';
+    statusBadge.style.color = '#2ecc71'; statusBadge.style.borderColor = '#2ecc7140'; statusBadge.style.background = '#2ecc7112';
+    barSub.textContent = `${pct}%`;
+  } else {
+    // Idle
+    eyesIdle.style.display = 'block';
+    demoOutline.style.stroke = 'rgba(42,42,53,0.6)';
+    demoG1.style.stopColor = '#1e1e28'; demoG2.style.stopColor = '#2a2a40';
+    bG1.style.stopColor = '#1e1e28'; bG2.style.stopColor = '#2a2a40';
+    statusBadge.textContent = 'IDLE';
+    statusBadge.style.color = '#5a5a72'; statusBadge.style.borderColor = '#1e1e28'; statusBadge.style.background = 'transparent';
+    barSub.textContent = '0%';
+    barDot.style.background = '#3a3a50'; barDot.style.boxShadow = 'none';
+  }
+}
+
+slider.addEventListener('input', () => updateWidget(parseInt(slider.value)));
+updateWidget(0);
+
+// Auto-animate to 40% on load
+let autoPct = 0;
+const autoTimer = setTimeout(function autoPlay() {
+  autoPct += 1.5;
+  if (autoPct >= 40) { slider.value = 40; updateWidget(40); return; }
+  slider.value = autoPct;
+  updateWidget(autoPct);
+  setTimeout(autoPlay, 40);
+}, 600);
+</script>
+</body>
+</html>
