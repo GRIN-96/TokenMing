@@ -202,7 +202,8 @@ pub fn run() -> anyhow::Result<()> {
                 .build(app)?;
 
             // Handle popup menu events (ctx_*)
-            app.on_menu_event(|app, event| match event.id().as_ref() {
+            let app_handle = app.handle().clone();
+            app_handle.on_menu_event(move |app, event| match event.id.as_ref() {
                 "ctx_refresh" => {
                     let _ = app.emit("refresh", ());
                 }
@@ -211,7 +212,7 @@ pub fn run() -> anyhow::Result<()> {
                     let _ = app.emit("auth_changed", ());
                 }
                 "ctx_login" => {
-                    let _ = app.shell().open("https://claude.ai", None::<&str>);
+                    let _ = app.shell().open("https://claude.ai", None::<String>);
                 }
                 "ctx_quit" => {
                     app.exit(0);
