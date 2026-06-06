@@ -57,10 +57,20 @@ jobs:
             - **Windows**: `.msi` 또는 `.exe` (NSIS)
             - **macOS**: `.dmg` (Intel + Apple Silicon 통합)
 
-            ### 설치 시 주의
-            서명 안 된 빌드라 처음 실행 시:
-            - Windows: SmartScreen 경고 → "추가 정보 → 실행" 클릭
-            - macOS: "확인되지 않은 개발자" → 우클릭 → 열기
+            ### macOS 설치
+            Apple Developer 서명이 없는 ad-hoc 빌드라 첫 실행 시 한 번만 아래 절차가 필요합니다.
+
+            1. dmg를 열어 `TokenMing.app`을 `Applications`로 드래그
+            2. 터미널에서 quarantine 속성 제거:
+               ```bash
+               xattr -cr /Applications/TokenMing.app
+               ```
+            3. Applications에서 앱 실행 (이후로는 일반 앱처럼 동작)
+
+            > "손상되었기 때문에 열 수 없습니다" 메시지가 뜨면 2번 명령을 실행하지 않은 것입니다.
+
+            ### Windows 설치
+            SmartScreen 경고 시 **"추가 정보 → 실행"** 클릭.
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
